@@ -33,6 +33,7 @@ static struct engines engines [] = {
     {.name = "hscan",       .find_all = hs_find_all},
 #endif
     {.name = "rust_regex",  .find_all = rust_find_all},
+    {.name = "d_regex",     .find_all = d_find_all},
 };
 
 static char * regex [] = {

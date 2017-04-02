@@ -6,6 +6,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.h.in ${CMAKE_CURRENT_SOURCE_D
 set(REGEX_SOURCES
     main.c
     rust.c
+    dlang.c
 )
 
 if(NOT ${INCLUDE_PCRE2} MATCHES "disabled")
@@ -43,7 +44,17 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/rust/include
 )
 
-link_directories(${PROJECT_SOURCE_DIR}/vendor/local/lib)
+link_directories(
+    ${PROJECT_SOURCE_DIR}/vendor/local/lib
+    /home/dmitry/dmd2/linux/lib64
+)
+
+add_custom_target(libdlangregex ALL
+    # create dlang regex library
+    COMMAND dmd -lib -O -release -inline ${CMAKE_CURRENT_SOURCE_DIR}/dlang.d -of${PROJECT_BINARY_DIR}/libdlangregex.a
+)
+
+link_directories(${PROJECT_BINARY_DIR})
 
 if(CMAKE_BUILD_TYPE MATCHES "^Release")
     link_directories(${PROJECT_BINARY_DIR}/rregex/release)
@@ -53,6 +64,6 @@ endif()
 
 add_executable(regex_perf ${REGEX_SOURCES})
 
-add_dependencies(regex_perf librregex)
+add_dependencies(regex_perf librregex libdlangregex)
 
-target_link_libraries(regex_perf rregex ${REGEX_ENGINES} pthread dl)
+target_link_libraries(regex_perf rregex dlangregex phobos2 ${REGEX_ENGINES} pthread dl)
